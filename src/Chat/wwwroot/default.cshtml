@@ -203,8 +203,11 @@
             user + time + "<div>" + o.msg + "</div>" + "</div>").scrollTop(1E10);
     }
     function createUser(user) {
-        return "<div class='user u_" + user.userId + "'><img src='" + (user.profileUrl || "/img/no-profile64.png") + "'/><span data-id='" +
-            user.userId + "' data-click='privateMsg'>" + user.displayName + "</span></div>";
+        var img = '<img src="' + (user.profileUrl || "/img/no-profile64.png") + '">';
+        var to = '<div class="user u_' + user.userId + '">' + img + '<span data-id="' +
+            user.userId + '" data-click="privateMsg">' + user.displayName + '</span></div>';
+
+        return to;
     }
 
     var msgHistory = [], historyIndex = -1;
