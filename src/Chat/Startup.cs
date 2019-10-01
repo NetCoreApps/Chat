@@ -218,7 +218,7 @@ namespace Chat
         public IChatHistory ChatHistory { get; set; }
         public IAppSettings AppSettings { get; set; }
 
-        public void Any(PostRawToChannel request)
+        public async Task Any(PostRawToChannel request)
         {
             if (!IsAuthenticated && AppSettings.Get("LimitRemoteControlToAuthenticatedUsers", false))
                 throw new HttpError(HttpStatusCode.Forbidden, "You must be authenticated to use remote control.");
@@ -233,16 +233,16 @@ namespace Chat
             if (request.ToUserId != null)
             {
                 // Only notify that specific user
-                ServerEvents.NotifyUserId(request.ToUserId, request.Selector, msg);
+                await ServerEvents.NotifyUserIdAsync(request.ToUserId, request.Selector, msg);
             }
             else
             {
                 // Notify everyone in the channel for public messages
-                ServerEvents.NotifyChannel(request.Channel, request.Selector, msg);
+                await ServerEvents.NotifyChannelAsync(request.Channel, request.Selector, msg);
             }
         }
 
-        public object Any(PostChatToChannel request)
+        public async Task<object> Any(PostChatToChannel request)
         {
             // Ensure the subscription sending this notification is still active
             var sub = ServerEvents.GetSubscriptionInfo(request.From);
@@ -267,7 +267,7 @@ namespace Chat
                 // Mark the message as private so it can be displayed differently in Chat
                 msg.Private = true;
                 // Send the message to the specific user Id
-                ServerEvents.NotifyUserId(request.ToUserId, request.Selector, msg);
+                await ServerEvents.NotifyUserIdAsync(request.ToUserId, request.Selector, msg);
 
                 // Also provide UI feedback to the user sending the private message so they
                 // can see what was sent. Relay it to all senders active subscriptions 
@@ -276,13 +276,13 @@ namespace Chat
                 {
                     // Change the message format to contain who the private message was sent to
                     msg.Message = $"@{toSub.DisplayName}: {msg.Message}";
-                    ServerEvents.NotifySubscription(request.From, request.Selector, msg);
+                    await ServerEvents.NotifySubscriptionAsync(request.From, request.Selector, msg);
                 }
             }
             else
             {
                 // Notify everyone in the channel for public messages
-                ServerEvents.NotifyChannel(request.Channel, request.Selector, msg);
+                await ServerEvents.NotifyChannelAsync(request.Channel, request.Selector, msg);
             }
 
             if (!msg.Private)
