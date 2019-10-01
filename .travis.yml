@@ -1,18 +1,11 @@
-language: csharp
-os: linux
 dist: xenial
-sudo: required
-mono: none
-env: DOTNETCORE=1
-services:
-  - docker
 addons:
-  apt:
-    packages:
-      - docker-ce
   snaps:
   - name: dotnet-sdk
     classic: true
+sudo: required
+language: csharp
+mono: none
 script:
   - sudo snap alias dotnet-sdk.dotnet dotnet
   - dotnet --version
