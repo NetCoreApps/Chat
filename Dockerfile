@@ -4,12 +4,12 @@ EXPOSE 80
 EXPOSE 443
 
 # copy csproj and restore as distinct layers
-COPY *.sln .
-COPY Chat/*.csproj ./Chat/
+COPY src/*.sln .
+COPY src/Chat/*.csproj ./Chat/
 RUN dotnet restore
 
 # copy everything else and build app
-COPY Chat/. ./Chat/
+COPY src/Chat/. ./Chat/
 WORKDIR /app/Chat
 RUN dotnet publish -c Release -o out
 
