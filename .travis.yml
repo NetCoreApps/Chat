@@ -1,6 +1,6 @@
 language: csharp
 os: linux
-dist: trusty
+dist: xenial
 sudo: required
 mono: none
 env: DOTNETCORE=1
