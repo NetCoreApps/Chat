@@ -16,6 +16,7 @@ using ServiceStack;
 using ServiceStack.Configuration;
 using ServiceStack.Auth;
 using ServiceStack.Mvc;
+using ServiceStack.Script;
 
 namespace Chat
 {
@@ -211,6 +212,27 @@ namespace Chat
     [Route("/reset-serverevents")]
     public class ResetServerEvents : IReturnVoid { }
 
+    [Route("/channels/{Channel}/object")]
+    public class PostObjectToChannel : IReturnVoid
+    {
+        public string ToUserId { get; set; }
+        public string Channel { get; set; }
+        public string Selector { get; set; }
+
+        public CustomType CustomType { get; set; }
+        public SetterType SetterType { get; set; }
+    }
+    public class CustomType
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+    public class SetterType
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
     public class ServerEventsServices : Service
     {
         public IServerEvents ServerEvents { get; set; }
@@ -250,6 +272,12 @@ namespace Chat
 
             var channel = request.Channel;
 
+            var chatMessage = request.Message.IndexOf("{{", StringComparison.Ordinal) >= 0
+                ? await HostContext.AppHost.ScriptContext.RenderScriptAsync(request.Message, new Dictionary<string, object> {
+                    [nameof(Request)] = Request
+                })
+                : request.Message;
+
             // Create a DTO ChatMessage to hold all required info about this message
             var msg = new ChatMessage
             {
@@ -257,7 +285,7 @@ namespace Chat
                 Channel = request.Channel,
                 FromUserId = sub.UserId,
                 FromName = sub.DisplayName,
-                Message = PclExportClient.Instance.HtmlEncode(request.Message),
+                Message = chatMessage.HtmlEncode(),
             };
 
             // Check to see if this is a private message to a specific user
@@ -313,6 +341,24 @@ namespace Chat
         public void Any(ResetServerEvents request)
         {
             ServerEvents.Reset();
+        }
+
+        public async Task Any(PostObjectToChannel request)
+        {
+            if (request.ToUserId != null)
+            {
+                if (request.CustomType != null)
+                    await ServerEvents.NotifyUserIdAsync(request.ToUserId, request.Selector ?? Selector.Id<CustomType>(), request.CustomType);
+                if (request.SetterType != null)
+                    await ServerEvents.NotifyUserIdAsync(request.ToUserId, request.Selector ?? Selector.Id<SetterType>(), request.SetterType);
+            }
+            else
+            {
+                if (request.CustomType != null)
+                    await ServerEvents.NotifyChannelAsync(request.Channel, request.Selector ?? Selector.Id<CustomType>(), request.CustomType);
+                if (request.SetterType != null)
+                    await ServerEvents.NotifyChannelAsync(request.Channel, request.Selector ?? Selector.Id<SetterType>(), request.SetterType);
+            }
         }
     }
 
