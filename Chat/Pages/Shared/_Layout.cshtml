@@ -1,0 +1,24 @@
+﻿@inherits Microsoft.AspNetCore.Mvc.Razor.RazorPage<TModel>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="/img/favicon.png" rel="icon">
+    <link href="/css/default.css" rel="stylesheet" />
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/ss-utils.js"></script>
+    <title>@(ViewData["Title"] ?? "ServiceStack Chat")</title>
+</head>
+<body class="bg-white dark:bg-black dark:text-white">
+
+<div class="min-h-screen">
+    <main role="main" class="pb-3" hx-ext="class-tools">
+        @RenderBody()
+    </main>
+</div>
+
+@await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>
