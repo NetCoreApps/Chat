@@ -25,7 +25,7 @@ else
 app.UseStaticFiles();
 
 app.UseServiceStack(new AppHost(), options => {
-    options.MapEndpoints(force:true);
+    options.MapEndpoints();
 });
 app.MapRazorPages();
 
