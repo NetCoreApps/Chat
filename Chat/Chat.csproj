@@ -7,6 +7,10 @@
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <PublishProfile>DefaultContainer</PublishProfile>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <ContainerLabel Include="service" Value="chat" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.*" />
